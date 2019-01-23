@@ -1,0 +1,10 @@
+plugins {
+    id 'application'
+}
+
+apply plugin: 'java'
+
+application {
+    mainClassName = "com.jerolba.tuple.HashCollision"
+}
+
