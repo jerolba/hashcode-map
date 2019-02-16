@@ -16,5 +16,5 @@ repositories {
 }
 
 dependencies {
-	compile 'com.jerolba:rt-jmap:0.1.0'
+	compile 'com.jerolba:rt-jmap:0.1.1'
 }
