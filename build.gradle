@@ -8,3 +8,13 @@ application {
     mainClassName = "com.jerolba.tuple.HashCollision"
 }
 
+
+repositories {
+	maven {
+		url  "https://dl.bintray.com/jerolba/rt-jmap"
+	}
+}
+
+dependencies {
+	compile 'com.jerolba:rt-jmap:0.1.0'
+}
