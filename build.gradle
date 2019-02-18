@@ -10,11 +10,9 @@ application {
 
 
 repositories {
-	maven {
-		url  "https://dl.bintray.com/jerolba/rt-jmap"
-	}
+	jcenter()
 }
 
 dependencies {
-	compile 'com.jerolba:rt-jmap:0.1.1'
+	compile 'com.jerolba:jmnemohistosyne:0.2.0'
 }
