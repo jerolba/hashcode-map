@@ -9,22 +9,18 @@ import com.jerolba.bikey.BikeyMap;
 import com.jerolba.bikey.DoubleMap;
 import com.jerolba.bikey.Tuple;
 import com.jerolba.bikey.TupleMap;
-import com.jerolba.bikeyrunner.Benchmark.Iteration;
 import com.jerolba.bikeyrunner.RandomDomain.Bikey;
 
 public class CPUBenchmarkRead {
 
-    private static final int SAMPLES = 50;
     private static final String VALUE = "VALUE";
-
+    private static final int times = 50;
     private int rows;
     private int cols;
-    private RandomDomain domain;
-    private int sampleSize;
 
     public static void main(String[] args) {
-        int rows = 10_000;
-        int cols = 300;
+        int rows = 5_000;
+        int cols = 500;
         if (args.length > 0) {
             rows = Integer.parseInt(args[0]);
             cols = Integer.parseInt(args[1]);
@@ -35,16 +31,15 @@ public class CPUBenchmarkRead {
     public CPUBenchmarkRead(int rows, int cols) {
         this.rows = rows;
         this.cols = cols;
-        this.sampleSize = rows * cols / SAMPLES;
-        this.domain = new RandomDomain(rows, cols);
     }
 
     public void go() {
+        baseline();
         System.out.println("Running for " + rows + "x" + cols);
-        TupleMap<Integer, Integer, String> tupleMap = createMap(TupleMap::new);
-        runWithTupleMap(tupleMap);
         DoubleMap<Integer, Integer, String> doubleMap = createMap(DoubleMap::new);
         runWithDoubleMap(doubleMap);
+        TupleMap<Integer, Integer, String> tupleMap = createMap(TupleMap::new);
+        runWithTupleMap(tupleMap);
     }
 
     private <T extends BikeyMap<Integer, Integer, String>> T createMap(Supplier<T> factory) {
@@ -60,51 +55,49 @@ public class CPUBenchmarkRead {
 
     private void runWithTupleMap(TupleMap<Integer, Integer, String> bikeyMap) {
         // Instantiate all tuples before accessing it
+        RandomDomain domain = new RandomDomain(rows, cols);
         List<Tuple<Integer, Integer>> tupleDomain = domain.getDomain().stream().map(k -> new Tuple<>(k.i, k.j))
                 .collect(Collectors.toList());
 
-        Benchmark benchmark = new Benchmark(SAMPLES);
-        for (int loops = 0; loops < 10; loops++) {
+        Benchmark benchmark = new Benchmark(times, rows * cols);
+        benchmark.run((c) -> {
             Iterator<Tuple<Integer, Integer>> iterator = tupleDomain.iterator();
-            Iteration it = benchmark.newIteration();
-            long start = System.nanoTime();
-            int cont = 0;
             while (iterator.hasNext()) {
-                Tuple<Integer, Integer> next = iterator.next();
-                bikeyMap.get(next);
-                cont++;
-                if (cont % sampleSize == 0) {
-                    long elapsed = System.nanoTime() - start;
-                    it.add(cont / sampleSize - 1, elapsed);
-                }
+                bikeyMap.get(iterator.next());
+                c.consumed();
             }
-        }
-        Iteration average = benchmark.average();
-        for (long l : average.samples) {
-            System.out.println(l);
-        }
+        });
+        benchmark.average().print();
     }
 
     private void runWithDoubleMap(DoubleMap<Integer, Integer, String> bikeyMap) {
-        Benchmark benchmark = new Benchmark(SAMPLES);
-        for (int loops = 0; loops < 10; loops++) {
+        RandomDomain domain = new RandomDomain(rows, cols);
+        Benchmark benchmark = new Benchmark(times, rows * cols);
+        benchmark.run((c) -> {
             Iterator<Bikey> iterator = domain.getDomain().iterator();
-            Iteration it = benchmark.newIteration();
-            long start = System.nanoTime();
-            int cont = 0;
             while (iterator.hasNext()) {
                 Bikey next = iterator.next();
                 bikeyMap.get(next.i, next.j);
-                cont++;
-                if (cont % sampleSize == 0) {
-                    long elapsed = System.nanoTime() - start;
-                    it.add(cont / sampleSize - 1, elapsed);
-                }
+                c.consumed();
             }
-        }
-        Iteration average = benchmark.average();
-        for (long l : average.samples) {
-            System.out.println(l);
-        }
+        });
+        benchmark.average().print();
     }
+
+    private void baseline() {
+        RandomDomain domain = new RandomDomain(rows, cols);
+        Benchmark benchmark = new Benchmark(times, rows * cols);
+        long[] hole = new long[2];
+        benchmark.run((c) -> {
+            Iterator<Bikey> iterator = domain.getDomain().iterator();
+            while (iterator.hasNext()) {
+                Bikey next = iterator.next();
+                hole[0]+=next.i;
+                hole[1]+=next.j;
+                c.consumed();
+            }
+        });
+        benchmark.average().print();
+    }
+
 }
