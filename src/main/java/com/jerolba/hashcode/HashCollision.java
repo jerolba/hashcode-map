@@ -2,8 +2,8 @@ package com.jerolba.hashcode;
 
 import java.util.HashMap;
 
-import com.jerolba.rtjmap.Histogramer;
-import com.jerolba.rtjmap.MemoryHistogram;
+import com.jerolba.jmnemohistosyne.Histogramer;
+import com.jerolba.jmnemohistosyne.MemoryHistogram;
 
 /**
  * Entry point to execute the experiments
@@ -56,7 +56,7 @@ public class HashCollision {
             }
             long end = System.nanoTime();
             System.out.println("Milliseconds to create map: " + (end - start) / (1000 * 1000));
-            
+
             inspector.inspect(index);
             return index;
         });

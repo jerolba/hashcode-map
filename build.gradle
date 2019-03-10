@@ -1,20 +1,36 @@
 plugins {
     id 'application'
+    id 'me.champeau.gradle.jmh' version '0.4.8'
 }
 
+apply plugin: 'eclipse'
 apply plugin: 'java'
 
 application {
-    mainClassName = "com.jerolba.tuple.HashCollision"
+    if (project.hasProperty("mainClass")){
+        mainClassName = project.getProperty("mainClass")
+        println("Main class name:" + mainClassName) 
+    } else{
+        mainClassName = "com.jerolba.hashcode.HashCollision"
+    }
 }
 
-
 repositories {
-	maven {
-		url  "https://dl.bintray.com/jerolba/rt-jmap"
-	}
+	jcenter()
 }
 
 dependencies {
-	compile 'com.jerolba:rt-jmap:0.1.1'
+	compile "com.jerolba:jmnemohistosyne:0.2.2"
+}
+
+jmh {
+    benchmarkMode = ["avgt"]
+    timeUnit = "ms"
+    warmupIterations = 4
+    iterations = 5
+    forceGC = true
+    fork = 1
+    resultFormat = "JSON" 
+    include = ["BenchmarkDoubleRead", "BenchmarkTupleRead", "BenchmarkWrite"]
+    benchmarkParameters = ["rows" : ["1000", "2500", "5000", "7500", "10000"], "cols" : ["100", "250", "500", "750", "1000"]]
 }
