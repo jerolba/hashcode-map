@@ -14,18 +14,20 @@ import com.jerolba.bikeyrunner.RandomDomain.Bikey;
 public class CPUBenchmarkRead {
 
     private static final String VALUE = "VALUE";
-    private static final int times = 50;
+    private static final int times = 100;
     private int rows;
     private int cols;
 
     public static void main(String[] args) {
-        int rows = 5_000;
-        int cols = 500;
+        String version = "baseline";
+        int rows = 2_000;
+        int cols = 200;
         if (args.length > 0) {
-            rows = Integer.parseInt(args[0]);
-            cols = Integer.parseInt(args[1]);
+            version = args[0];
+            rows = Integer.parseInt(args[1]);
+            cols = Integer.parseInt(args[2]);
         }
-        new CPUBenchmarkRead(rows, cols).go();
+        new CPUBenchmarkRead(rows, cols).go(version);
     }
 
     public CPUBenchmarkRead(int rows, int cols) {
@@ -33,24 +35,17 @@ public class CPUBenchmarkRead {
         this.cols = cols;
     }
 
-    public void go() {
-        baseline();
-        System.out.println("Running for " + rows + "x" + cols);
-        DoubleMap<Integer, Integer, String> doubleMap = createMap(DoubleMap::new);
-        runWithDoubleMap(doubleMap);
-        TupleMap<Integer, Integer, String> tupleMap = createMap(TupleMap::new);
-        runWithTupleMap(tupleMap);
-    }
-
-    private <T extends BikeyMap<Integer, Integer, String>> T createMap(Supplier<T> factory) {
-        RandomDomain domain = new RandomDomain(rows, cols);
-        Iterator<Bikey> iterator = domain.getDomain().iterator();
-        T bikeyMap = factory.get();
-        while (iterator.hasNext()) {
-            Bikey next = iterator.next();
-            bikeyMap.put(next.i, next.j, VALUE);
+    public void go(String version) {
+        System.out.println("Running "+ version + " for " + rows + "x" + cols);
+        if (version.equals("baseline")) {
+            baseline();
+        } else if (version.equals("TupleMap")) {
+            TupleMap<Integer, Integer, String> tupleMap = createMap(TupleMap::new);
+            runWithTupleMap(tupleMap);
+        } else if (version.equals("DoubleMap")) {
+            DoubleMap<Integer, Integer, String> doubleMap = createMap(DoubleMap::new);
+            runWithDoubleMap(doubleMap);
         }
-        return bikeyMap;
     }
 
     private void runWithTupleMap(TupleMap<Integer, Integer, String> bikeyMap) {
@@ -97,7 +92,19 @@ public class CPUBenchmarkRead {
                 c.consumed();
             }
         });
+        System.out.println(hole);
         benchmark.average().print();
+    }
+
+    private <T extends BikeyMap<Integer, Integer, String>> T createMap(Supplier<T> factory) {
+        RandomDomain domain = new RandomDomain(rows, cols);
+        Iterator<Bikey> iterator = domain.getDomain().iterator();
+        T bikeyMap = factory.get();
+        while (iterator.hasNext()) {
+            Bikey next = iterator.next();
+            bikeyMap.put(next.i, next.j, VALUE);
+        }
+        return bikeyMap;
     }
 
 }

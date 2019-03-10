@@ -24,21 +24,39 @@ public class Benchmark {
     }
 
     public void run(Consumer<Consumed> runnable) {
+        warmup(runnable);
         for (int i = 0; i < times; i++) {
             Iteration it = this.newIteration();
             long start = System.nanoTime();
-            int[] cont = new int[1];
-            cont[0] = 0;
+            Counter counter = new Counter();
             Consumed c = () -> {
-                int current = cont[0];
+                int current = counter.inc();
                 current++;
                 if (isMark(current)) {
                     long elapsed = System.nanoTime() - start;
                     it.add(current / sampleSize - 1, elapsed);
                 }
-                cont[0] = current;
             };
             runnable.accept(c);
+        }
+    }
+    
+    public void warmup(Consumer<Consumed> runnable) {
+        long start = System.currentTimeMillis();
+        Counter counter = new Counter();
+        try {
+            for (int i = 0; i < 100000; i++) {
+                Consumed c = () -> {
+                    if (counter.inc() % 10_000 == 0) {
+                        if ((System.currentTimeMillis() - start) > 10_000) {
+                            throw new RuntimeException();
+                        }
+                    }
+                };
+                runnable.accept(c);
+            }
+        } catch (RuntimeException stop) {
+
         }
     }
 
@@ -53,13 +71,14 @@ public class Benchmark {
     }
 
     public Iteration average() {
+        int discarded = iterations.size() * 10 / 100;
         List<Iteration> copy = new ArrayList<>(iterations);
         Collections.sort(copy);
         Iteration ac = new Iteration(samples);
-        for (int i = 1; i < copy.size() - 1; i++) {
+        for (int i = discarded; i < copy.size() - discarded; i++) {
             ac.add(copy.get(i));
         }
-        ac.forIterations(samples - 2);
+        ac.forIterations(samples - 2 * discarded);
         return ac;
     }
 
@@ -109,5 +128,15 @@ public class Benchmark {
             }
         }
 
+    }
+    
+    public static class Counter {
+        
+        public int count = 0;
+        
+        public int inc() {
+            return ++count;
+        }
+        
     }
 }
