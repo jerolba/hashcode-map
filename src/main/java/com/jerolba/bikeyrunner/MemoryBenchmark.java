@@ -16,18 +16,7 @@ public class MemoryBenchmark {
 
     private static final int SAMPLES = 50;
     private static final String VALUE = "VALUE";
-    private static final List<Object> classes = Arrays.asList(
-            "com.jerolba.bikey.*",
-            "java.util.HashMap*",
-            "Object[]",
-            "int[]",
-            "long[]",
-            "java.util.HashSet",
-            "java.util.ArrayList",
-            "java.util.LinkedHashMap*",
-            "java.util.TreeMap*",
-            "java.util.BitSet"
-            );
+    private static final List<Object> classes = Arrays.asList("com.jerolba.bikey.*", "java.util.HashMap*");
 
     private int rows;
     private int cols;

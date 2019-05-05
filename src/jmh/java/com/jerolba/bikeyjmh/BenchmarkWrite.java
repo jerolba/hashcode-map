@@ -5,7 +5,9 @@ import java.util.List;
 
 import org.openjdk.jmh.annotations.*;
 
-import com.jerolba.bikey.*;
+import com.jerolba.bikey.DoubleMap;
+import com.jerolba.bikey.Tuple;
+import com.jerolba.bikey.TupleMap;
 import com.jerolba.bikeyrunner.RandomDomain;
 import com.jerolba.bikeyrunner.RandomDomain.Bikey;
 
@@ -44,21 +46,4 @@ public class BenchmarkWrite {
         }
     }
 
-    @Benchmark
-    public void writeTableBikeyMap() {
-        TableBikeyMap<Integer, Integer, String> map = new TableBikeyMap<>();
-        List<Bikey> rndDomain = domain.getDomain();
-        for (Bikey bikey : rndDomain) {
-            map.put(bikey.i, bikey.j, VALUE);
-        }
-    }
-    
-    @Benchmark
-    public void writeMatrixBikeyMap() {
-        MatrixBikeyMap<Integer, Integer, String> map = new MatrixBikeyMap<>();
-        List<Bikey> rndDomain = domain.getDomain();
-        for (Bikey bikey : rndDomain) {
-            map.put(bikey.i, bikey.j, VALUE);
-        }
-    }
 }
