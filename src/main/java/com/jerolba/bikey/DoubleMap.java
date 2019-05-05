@@ -3,18 +3,18 @@ package com.jerolba.bikey;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DoubleMap<R, T, V> implements BikeyMap<R, T, V> {
+public class DoubleMap<R, T, V> extends AbstractTestBikeyMap<R, T, V> {
 
     private Map<R, Map<T, V>> map = new HashMap<>();
 
     @Override
-    public void put(R firstKey, T secondKey, V value) {
+    public V put(R firstKey, T secondKey, V value) {
         Map<T, V> innerMap = map.get(firstKey);
         if (innerMap == null) {
             innerMap = new HashMap<>();
             map.put(firstKey, innerMap);
         }
-        innerMap.put(secondKey, value);
+        return innerMap.put(secondKey, value);
     }
 
     public V get(R firstKey, T secondKey) {

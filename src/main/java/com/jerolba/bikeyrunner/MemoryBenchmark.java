@@ -5,9 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Supplier;
 
-import com.jerolba.bikey.BikeyMap;
-import com.jerolba.bikey.DoubleMap;
-import com.jerolba.bikey.TupleMap;
+import com.jerolba.bikey.*;
 import com.jerolba.bikeyrunner.RandomDomain.Bikey;
 import com.jerolba.jmnemohistosyne.Histogramer;
 import com.jerolba.jmnemohistosyne.MemoryHistogram;
@@ -47,6 +45,12 @@ public class MemoryBenchmark {
 
         Iterator<Bikey> iteratorDouble = domain.getDomain().iterator();
         runWith(iteratorDouble, DoubleMap::new);
+        
+        Iterator<Bikey> iteratorTableBikeyMap= domain.getDomain().iterator();
+        runWith(iteratorTableBikeyMap, TableBikeyMap::new);
+
+        Iterator<Bikey> iteratorMatrixBikeyMap= domain.getDomain().iterator();
+        runWith(iteratorMatrixBikeyMap, MatrixBikeyMap::new);
     }
 
     private void runWith(Iterator<Bikey> iterator, Supplier<BikeyMap<Integer, Integer, String>> factory) {
