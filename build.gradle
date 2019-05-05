@@ -16,11 +16,13 @@ application {
 }
 
 repositories {
-	jcenter()
+	mavenCentral()
+	mavenLocal()
 }
 
 dependencies {
 	compile "com.jerolba:jmnemohistosyne:0.2.2"
+	compile "com.jerolba:bikey:0.9.0"
 }
 
 jmh {
@@ -31,6 +33,6 @@ jmh {
     forceGC = true
     fork = 1
     resultFormat = "JSON" 
-    include = ["BenchmarkDoubleRead", "BenchmarkTupleRead", "BenchmarkWrite"]
+    include = ["BenchmarkTableBikeyMapRead", "BenchmarkMatrixBikeyMapRead", "BenchmarkDoubleRead", "BenchmarkTupleRead", "BenchmarkWrite"]
     benchmarkParameters = ["rows" : ["1000", "2500", "5000", "7500", "10000"], "cols" : ["100", "250", "500", "750", "1000"]]
 }
